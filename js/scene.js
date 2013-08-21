@@ -6,21 +6,19 @@ var HN= {};
 
 (function() {
 
-  var director;
-  var scene1, scene2;
+  var director;  
   
   function start() {
     width = window.innerWidth;
     height = window.innerHeight;   
   
     director = new CAAT.Director().initialize(
-       width, height, document.getElementById('_c6'));
-    scene1 = director.createScene();
-    scene2 = director.createScene();
+       width, height, document.getElementById('_c6'));   
  
     new CAAT.ImagePreloader().loadImages(
         [ {id:'ship',     url:'resource/ship.png'},
-          {id:'target',   url:'resource/target.png'} ],      
+          {id:'target',   url:'resource/target.png'},
+          {id:'buttons',  url:'resource/buttons.png'} ],      
          function( count, images ) {
             if ( count === images.length ) {
                 director.setImagesCache(images);                 
@@ -35,6 +33,8 @@ var HN= {};
 
     // set up Scene1
     if (true) {
+      var scene1 = director.createScene();
+  
       var ship = new CAAT.Actor().
               setBackgroundImage(director.getImage('ship')).
               setScale(0.5, 0.5).
@@ -71,6 +71,8 @@ var HN= {};
      
     // set up scene2
     if (true) {
+      var scene2 = director.createScene();
+      
       var target = new CAAT.Actor().
               setBackgroundImage(director.getImage('target')).
               setScale(0.5, 0.5).
@@ -104,7 +106,33 @@ var HN= {};
       target.addBehavior( path_behavior );
     }
     
-    director.setScene(1);
+    // set up scene3
+    if (true) {
+      // an image of 2 rows by 3 columns
+      var ci= new CAAT.Foundation.SpriteImage().initialize(
+              director.getImage('buttons'), 2, 3 );
+   
+      var scene3 = director.createScene();
+   
+      var b1= new CAAT.Foundation.Actor().setAsButton(
+                  ci.getRef(), 0, 1, 2, 0, function(button) {
+                      alert('scene1 pressed');
+                  }
+              ).
+              setLocation(0,30);
+   
+      var b2= new CAAT.Foundation.Actor().setAsButton(
+                  ci.getRef(), 3, 4, 5, 0, function(button) {
+                      alert('scene2 pressed');
+                  }
+              ).
+              setLocation(1.5*ci.singleWidth, 30);
+   
+      scene3.addChild( b1 );
+      scene3.addChild( b2 );
+    }
+    
+    director.setScene(2);
     
     CAAT.loop(30);        
     };

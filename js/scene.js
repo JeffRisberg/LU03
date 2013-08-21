@@ -7,10 +7,13 @@ var HN= {};
 (function() {
 
   var director;  
+  var gradient;
+  var buttons;
+  var scene1, scene2, scene3
   
   function start() {
     width = window.innerWidth;
-    height = window.innerHeight;   
+    height = window.innerHeight * 0.75;   
   
     director = new CAAT.Director().initialize(
        width, height, document.getElementById('_c6'));   
@@ -31,9 +34,20 @@ var HN= {};
   function demo(img) {
     director.setImagesCache(img);
 
+    // create a vertical gradient to apply to text.
+    gradient = director.ctx.createLinearGradient(0,0,0,director.canvas.height);
+    gradient.addColorStop(0, '#ffff00');
+    gradient.addColorStop(0.5, '#00ffff');
+    gradient.addColorStop(1, 'blue');
+   
+    // an image of 2 rows by 3 columns
+    buttons = new CAAT.Foundation.SpriteImage().initialize(
+              director.getImage('buttons'), 2, 3);
+    
     // set up Scene1
-    if (true) {
-      var scene1 = director.createScene();
+    {
+      scene1 = director.createScene();
+      scene1.setFillStyle(gradient);
   
       var ship = new CAAT.Actor().
               setBackgroundImage(director.getImage('ship')).
@@ -67,11 +81,12 @@ var HN= {};
               setAutoRotate( true );
        
       ship.addBehavior( path_behavior );
+      createFooter(scene1); 
     }
      
     // set up scene2
-    if (true) {
-      var scene2 = director.createScene();
+    {
+      scene2 = director.createScene();
       
       var target = new CAAT.Actor().
               setBackgroundImage(director.getImage('target')).
@@ -104,37 +119,46 @@ var HN= {};
               setAutoRotate( true );
        
       target.addBehavior( path_behavior );
+      
+      createFooter(scene2); 
     }
     
-    // set up scene3
-    if (true) {
-      // an image of 2 rows by 3 columns
-      var ci= new CAAT.Foundation.SpriteImage().initialize(
-              director.getImage('buttons'), 2, 3 );
-   
-      var scene3 = director.createScene();
-   
-      var b1= new CAAT.Foundation.Actor().setAsButton(
-                  ci.getRef(), 0, 1, 2, 0, function(button) {
-                      alert('scene1 pressed');
-                  }
-              ).
-              setLocation(0,30);
-   
-      var b2= new CAAT.Foundation.Actor().setAsButton(
-                  ci.getRef(), 3, 4, 5, 0, function(button) {
-                      alert('scene2 pressed');
-                  }
-              ).
-              setLocation(1.5*ci.singleWidth, 30);
-   
-      scene3.addChild( b1 );
-      scene3.addChild( b2 );
-    }
-    
-    director.setScene(2);
+    director.setScene(0);
     
     CAAT.loop(30);        
+    };
+    
+    /**
+     * Set up the footer, which has two buttons and a bottom edge.
+     */
+    function createFooter(scene) {
+      var height = director.canvas.height;
+      var width  = director.canvas.width;
+      
+      var b1 = new CAAT.Foundation.Actor().setAsButton(
+          buttons.getRef(), 0, 1, 2, 0, function(button) {
+              // run when clicked
+              director.setScene(0);
+          }
+      ).
+      setLocation(0, height-70);
+      scene.addChild( b1 );
+     
+      var b2 = new CAAT.Foundation.Actor().setAsButton(
+          buttons.getRef(), 3, 4, 5, 0, function(button) {
+              // run when clicked
+              director.setScene(1);
+          }
+      ).
+      setLocation(1.5*buttons.singleWidth, height-70);      
+      scene.addChild( b2 );
+      
+      var bottomEdge = new CAAT.ShapeActor().
+            setShape( CAAT.ShapeActor.prototype.SHAPE_RECTANGLE ).
+            setFillStyle( 'black' ).
+            setBounds( 0, height-10, width/2, 10);
+ 
+      scene.addChild( bottomEdge );
     };
 
   window.addEventListener( "load", start, false );
